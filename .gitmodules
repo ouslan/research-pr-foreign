@@ -1,0 +1,3 @@
+[submodule "src/aea"]
+	path = src/aea
+	url = git@github.com:ouslan/aeasp-2025.git
