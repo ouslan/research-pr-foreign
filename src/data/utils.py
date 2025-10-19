@@ -5,6 +5,7 @@ import os
 import pandas as pd
 import logging
 import geopandas as gpd
+from shapely import wkt
 
 
 class DiffReg(cleanData, DataPull):
@@ -56,7 +57,7 @@ class DiffReg(cleanData, DataPull):
         )
         return df_qcew
 
-    def make_spatial_table(self) -> pd.DataFrame:
+    def make_zips_table(self) -> pd.DataFrame:
         # initiiate the database tables
         if "zipstable" not in self.conn.sql("SHOW TABLES;").df().get("name").tolist():
             # Download the shape files
@@ -81,3 +82,23 @@ class DiffReg(cleanData, DataPull):
                 f"The zipstable is empty inserting {self.saving_dir}external/cousub.zip"
             )
         return self.conn.sql("SELECT * FROM zipstable;").df()
+
+    def spatial_data(self) -> gpd.GeoDataFrame:
+        gdf_zips = gpd.GeoDataFrame(self.make_zips_table())
+        gdf_zips["geometry"] = gdf_zips["geometry"].apply(wkt.loads)
+        gdf_zips = gdf_zips.set_geometry("geometry").set_crs(
+            "EPSG:4269", allow_override=True
+        )
+        gdf_zips = gdf_zips.to_crs("EPSG:3395")
+        gdf_zips["zipcode"] = gdf_zips["zipcode"].astype(str)
+
+        gdf_county = self.pull_county_shapes()
+
+        gdf = gpd.sjoin(
+            gdf_zips,
+            gdf_county[["geometry", "area_fips"]],
+            how="inner",
+            predicate="intersects",
+        ).drop("index_right", axis=1)
+
+        return gdf
