@@ -1,0 +1,35 @@
+[project]
+name = "research-pr-foreign"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "bambi>=0.15.0",
+    "dotenv>=0.9.9",
+    "duckdb>=1.4.1",
+    "geopandas>=1.1.1",
+    "joblib>=1.5.2",
+    "matplotlib>=3.10.7",
+    "pandas>=2.3.3",
+    "polars>=1.34.0",
+    "pyarrow>=21.0.0",
+    "pymc>=5.26.1",
+    "requests>=2.32.5",
+    "scipy>=1.16.2",
+    "seaborn>=0.13.2",
+    "toolz>=1.1.0",
+    "tqdm>=4.67.1",
+]
+
+[dependency-groups]
+dev = [
+    "cairosvg>=2.8.2",
+    "jupyter>=1.1.1",
+    "jupytext>=1.17.3",
+    "kaleido>=1.1.0",
+    "pnglatex>=1.1",
+    "pynvim>=0.6.0",
+    "pyperclip>=1.11.0",
+    "ruff>=0.14.1",
+]
