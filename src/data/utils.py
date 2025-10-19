@@ -179,3 +179,51 @@ class DiffReg(cleanData, DataPull):
         data = data.sort_values(["year", "qtr", "area_fips"]).reset_index(drop=True)
 
         return data
+
+    def usqcew_data(self, naics: str) -> pl.DataFrame:
+        df_min = self.pull_min_wage()
+        df_min = df_min.with_columns(
+            min_wage=pl.col("min_wage")
+            .str.replace("$", "", literal=True)
+            .str.replace("[c]", "", literal=True)
+            .str.replace("(b)", "", literal=True),
+            year=pl.col("year").cast(pl.String),
+        )
+        df_shape = pl.from_pandas(self.pull_states_shapes())
+        df_min = df_min.join(df_shape, on="state_name", how="inner", validate="m:1")
+
+        df = self.conn.sql(
+            """
+            SELECT area_fips,year,qtr,industry_code,month1_emplvl,month2_emplvl,month3_emplvl,avg_wkly_wage FROM 'USQCEWTable' 
+                WHERE agglvl_code=74 AND own_code=5;
+            """
+        ).pl()
+        df = df.with_columns(area_fips=pl.col("area_fips").str.zfill(5))
+        df = df.with_columns(
+            fips=pl.col("area_fips").str.slice(0, 2),
+        )
+        df = df.join(df_min, on=["fips", "year"], how="inner", validate="m:1")
+        df = df.filter(pl.col("min_wage").cast(pl.Float64, strict=False).is_not_null())
+        df = df.with_columns(
+            qtr=pl.col("qtr").cast(pl.Int32),
+            year=pl.col("year").cast(pl.Int32),
+            min_wage=pl.col("min_wage").cast(pl.Float64),
+            total_employment=(
+                (
+                    pl.col("month1_emplvl")
+                    + pl.col("month2_emplvl")
+                    + pl.col("month3_emplvl")
+                )
+                / 3
+            ),
+        )
+
+        df = df.filter(
+            (pl.col("industry_code") == naics)
+            & (pl.col("year") < 2024)
+            & (pl.col("fips") != "72")
+        )
+
+        df = df.with_columns(k_index=pl.col("min_wage") / pl.col("avg_wkly_wage"))
+
+        return df
