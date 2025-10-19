@@ -1,8 +1,8 @@
-from src.data.utils import DiffReg
+from src.submodule.jp_qcew.src.data.data_process import cleanData
 
 
 def main():
-    DiffReg().make_qcew_dataset()
+    print(cleanData().make_qcew_dataset())
 
 
 if __name__ == "__main__":

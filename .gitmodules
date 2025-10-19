@@ -1,3 +1,6 @@
-[submodule "src/aea"]
-	path = src/aea
-	url = git@github.com:ouslan/aeasp-2025.git
+[submodule "src/submodule/jp_qcew"]
+	path = src/submodule/jp_qcew
+	url = https://github.com/gitinference/jp-qcew.git
+[submodule "src/submodule/aea"]
+	path = src/submodule/aea
+	url = https://github.com/ouslan/aeasp-2025.git

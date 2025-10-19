@@ -2486,7 +2486,7 @@ requires-dist = [
     { name = "joblib", specifier = ">=1.5.2" },
     { name = "matplotlib", specifier = ">=3.10.7" },
     { name = "pandas", specifier = ">=2.3.3" },
-    { name = "polars", specifier = ">=1.34.0" },
+    { name = "polars", specifier = ">=1.17.0" },
     { name = "pyarrow", specifier = ">=21.0.0" },
     { name = "pymc", specifier = ">=5.26.1" },
     { name = "requests", specifier = ">=2.32.5" },
