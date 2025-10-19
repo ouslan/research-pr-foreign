@@ -165,3 +165,4 @@ data/qcew/*
 data/raw/*
 data/external/*
 *.ddb
+*.wal
