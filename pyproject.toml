@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "bambi>=0.15.0",
+    "causalpy>=0.5.0",
     "dotenv>=0.9.9",
     "duckdb>=1.4.1",
     "geopandas>=1.1.1",

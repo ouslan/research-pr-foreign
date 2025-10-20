@@ -56,6 +56,19 @@ class DiffReg(cleanData, DataPull):
         )
         return df_qcew
 
+    def data_set(self, naics: str, foreign: bool) -> pl.DataFrame:
+        df_pr = self.pr_data(naics=naics, foreign=foreign)
+        df_pr = df_pr.with_columns(fips=pl.lit("72"))
+        df_pr = df_pr.select(
+            ["year", "fips", "qtr", "area_fips", "total_employment", "k_index"]
+        )
+
+        df_us = self.us_data(naics=naics).select(
+            ["year", "fips", "qtr", "area_fips", "total_employment", "k_index"]
+        )
+        df = df_pr.vstack(df_us)
+        return df
+
     def make_zips_table(self) -> pd.DataFrame:
         # initiiate the database tables
         if "zipstable" not in self.conn.sql("SHOW TABLES;").df().get("name").tolist():
@@ -104,7 +117,7 @@ class DiffReg(cleanData, DataPull):
 
         return gdf
 
-    def regular_data(self, naics: str, foreign: bool):
+    def pr_data(self, naics: str, foreign: bool):
         df_qcew = self.base_data().filter(pl.col("year") >= 2012)
         if naics == "31-33":
             df_qcew = df_qcew.filter(
@@ -174,13 +187,9 @@ class DiffReg(cleanData, DataPull):
             k_index=pl.col("min_wage") / pl.col("avg_wkly_wage")
         )
 
-        data = df_qcew.to_pandas().copy()
+        return df_qcew.sort(["year", "qtr", "area_fips"])
 
-        data = data.sort_values(["year", "qtr", "area_fips"]).reset_index(drop=True)
-
-        return data
-
-    def usqcew_data(self, naics: str) -> pl.DataFrame:
+    def us_data(self, naics: str) -> pl.DataFrame:
         df_min = self.pull_min_wage()
         df_min = df_min.with_columns(
             min_wage=pl.col("min_wage")
